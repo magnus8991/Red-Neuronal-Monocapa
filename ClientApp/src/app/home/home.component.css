@@ -1,0 +1,21 @@
+.container {
+    padding-top: 5%; padding-bottom: 5%;
+}
+
+#TituloPulsaciones {
+    color: white;
+    text-align: center;
+}
+
+#TextoPulsaciones {
+    margin-top: 5%;
+    color: white;
+    text-align: justify;
+}
+
+.cuerpo {
+    background-image: url("../../assets/fondo.jpg");
+    background-position: 100%;
+    background-repeat: repeat-y;
+    background-size: 100%;
+}
