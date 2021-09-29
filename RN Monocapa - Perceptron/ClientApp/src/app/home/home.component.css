@@ -2,12 +2,17 @@
     padding-top: 5%; padding-bottom: 5%;
 }
 
-#TituloPulsaciones {
+#TituloRedMonocapa {
     color: white;
     text-align: center;
 }
 
-#TextoPulsaciones {
+#TituloAprendizaje {
+    color: white;
+    text-align: center;
+}
+
+#TextoRedMonocapa {
     margin-top: 5%;
     color: white;
     text-align: justify;

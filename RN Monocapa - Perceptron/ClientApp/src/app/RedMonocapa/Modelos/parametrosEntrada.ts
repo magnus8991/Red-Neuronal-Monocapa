@@ -1,4 +1,4 @@
-export class Persona {
+export class ParametrosEntrada {
     identificacion: string;
     nombres: string;
     apellidos: string;

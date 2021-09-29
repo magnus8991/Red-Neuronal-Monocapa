@@ -7,11 +7,14 @@ import { HeaderComponent } from './header/header.component';
 import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { FooterComponent } from './footer/footer.component';
 import { HomeComponent } from './home/home.component';
-import { PersonaRegistroComponent } from './pulsacion/persona-registro/persona-registro.component';
-import { PersonaConsultaComponent } from './pulsacion/persona-consulta/persona-consulta.component';
+import { EntrenamientoComponent } from './RedMonocapa/Componentes/entrenamiento/entrenamiento.component';
+import { SimulacionComponent } from './RedMonocapa/Componentes/simulación/simulacion.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatIconModule } from '@angular/material/icon';
-import { PersonaService } from './services/persona.service';
+import { EntrenamientoService } from './RedMonocapa/Servicios/entrenamiento.service';
+import { SimulacionService } from './RedMonocapa/Servicios/simulacion.service';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @NgModule({
   declarations: [
@@ -20,17 +23,19 @@ import { PersonaService } from './services/persona.service';
     NavMenuComponent,
     FooterComponent,
     HomeComponent,
-    PersonaRegistroComponent,
-    PersonaConsultaComponent
+    EntrenamientoComponent,
+    SimulacionComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
     BrowserAnimationsModule,
-    MatIconModule
+    MatIconModule,
+    MatCardModule,
+    MatFormFieldModule
   ],
-  providers: [PersonaService],
+  providers: [ EntrenamientoService, SimulacionService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,21 +1,21 @@
 import { Component, OnInit } from '@angular/core';
-import { Persona } from '../models/persona';
-import { PersonaService } from '../../services/persona.service';
+import { ParametrosEntrada } from '../../Modelos/parametrosEntrada';
+import { SimulacionService } from '../../Servicios/simulacion.service';
 import { of } from 'rxjs';
 
 @Component({
-  selector: 'app-persona-consulta',
-  templateUrl: './persona-consulta.component.html',
-  styleUrls: ['./persona-consulta.component.css']
+  selector: 'app-simulacion',
+  templateUrl: './simulacion.component.html',
+  styleUrls: ['./simulacion.component.css']
 })
-export class PersonaConsultaComponent implements OnInit {
-  personas: Persona[];
+export class SimulacionComponent implements OnInit {
+  personas: ParametrosEntrada[];
   tipoConsulta: string;
   totalHombres: number;
   totalMujeres: number;
   totalPersonas: number;
 
-  constructor(private personaService: PersonaService) { }
+  constructor(private personaService: SimulacionService) { }
 
   ngOnInit(): void {
     this.personas = [];

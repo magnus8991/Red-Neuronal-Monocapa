@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
-import { PersonaRegistroComponent } from './pulsacion/persona-registro/persona-registro.component';
-import { PersonaConsultaComponent } from './pulsacion/persona-consulta/persona-consulta.component';
+import { EntrenamientoComponent} from './RedMonocapa/Componentes/entrenamiento/entrenamiento.component';
+import { SimulacionComponent} from './RedMonocapa/Componentes/simulación/simulacion.component';
 
 const routes: Routes = [
     {path: 'home', component: HomeComponent},
-    {path: 'personaConsulta', component: PersonaConsultaComponent},
-    {path: 'personaRegistro', component: PersonaRegistroComponent},
+    {path: 'simulacion', component: SimulacionComponent},
+    {path: 'entrenamiento', component: EntrenamientoComponent},
     { path: '', component: HomeComponent }
   ];
 
