@@ -2,16 +2,22 @@ mat-icon {
     vertical-align: -25%;
 }
 
-.container {
-    padding-top: 5%; padding-bottom: 8%;
+mat-stepper {
+    background-color: transparent;
 }
 
-.tituloContainer {
-    color: #FFF;
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    font-weight: bolder;
-    font-size: 200%;
-    text-align: center;
+::ng-deep .mat-step-header .mat-step-icon {
+    background-color: #898f92; 
+ }
+
+ ::ng-deep .mat-stepper-horizontal-line {
+    border-top-color: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+}
+
+.contenido {
+    padding-top: 2%; padding-bottom: 2%;
+    padding-left: 3%; padding-right: 3%;
 }
 
 .control-label {
@@ -46,12 +52,11 @@ mat-icon {
     background-size: 100%;
 }
 
+/**********File Inputs**********/
+
 .archivo {
     text-align: center;
 }
-
-/**********File Inputs**********/
-
 
 .inputfile {
     width: 0.1px;
@@ -74,53 +79,44 @@ mat-icon {
     padding: 0.625rem 1.25rem;
 }
 
-.inputfile-1 + label {
-    color: #595653;
+.inputfile + label svg {
+    width: 1em;
+    height: 1em;
+    vertical-align: middle;
+    fill: currentColor;
+    margin-top: -0.25em;
+    margin-right: 0.25em;
 }
+
+.iborrainputfile {
+	font-size:16px; 
+	font-weight:normal;
+	font-family: 'Lato';
+}
+
+/* style 1 */
 
 .inputfile-1 + label {
-    border: 2px solid #595653;
-    font-size: 1rem;
-    background-color: #fff;
-    padding: 0;
-}
-
-.inputfile-1:focus + label,
-.inputfile-1.has-focus + label,
-.inputfile-1 + label:hover {
-    border-color: #aea69d;
-}
-
-.inputfile-1 + label span,
-.inputfile-1 + label strong {
-    padding: 0.625rem 1.25rem;
-}
-
-.inputfile-1 + label span {
-    width: 200px;
-    min-height: 1em;
-    display: inline-block;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    vertical-align: top;
-}
-
-.inputfile-1 + label strong {
-    height: 100%;
     color: #fff;
-    background-color: #595653;
-    display: inline-block;
+    background-color: #4f4d4a;
 }
 
-.inputfile-1:focus + label strong,
-.inputfile-1.has-focus + label strong,
-.inputfile-1 + label:hover strong {
-    background-color: #aea69d;
+.inputfile-1 + label:hover {
+    background-color: #7a746e;
 }
 
-@media screen and (max-width: 50em) {
-	.inputfile-7 + label strong {
-		display: block;
-	}
+.inputfile-1 + label:active {
+    background-color: #a59b90;
 }
+
+/deep/ .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar {
+    background-color: #325ef0;
+}
+
+/deep/ .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb {
+    background-color: #0433d0;
+}
+
+table {
+    width: 100%;
+  }

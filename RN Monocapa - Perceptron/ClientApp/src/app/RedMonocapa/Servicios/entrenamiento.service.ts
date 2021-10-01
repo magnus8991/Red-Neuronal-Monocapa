@@ -1,9 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
-import { HttpHeaders, HttpClient } from '@angular/common/http';
+import { MatrizPesosSinapticos } from '../Modelos/matrizPesosSinapticos';
 import { ParametrosEntrada } from '../Modelos/parametrosEntrada';
-import { Observable, of } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
-import { HandleHttpErrorService } from '../../@base/handle-http-error.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,22 +9,29 @@ export class EntrenamientoService {
 
   constructor() { }
 
-  post(ParametrosEntrada: ParametrosEntrada) {
-    let ParametrosEntradas: ParametrosEntrada[];
-    ParametrosEntradas = (this.get() != null)? this.get() : [];
-    ParametrosEntradas.push(ParametrosEntrada);
-    localStorage.setItem('datos', JSON.stringify(ParametrosEntradas));
+  getParametrosEntrada(): ParametrosEntrada {
+    let parametrosEntrada = localStorage.getItem('ParametrosEntrada');
+    return parametrosEntrada ? JSON.parse(parametrosEntrada) : null;
   }
 
-  get(): ParametrosEntrada[] {
-    return JSON.parse(localStorage.getItem('datos'));
+  postParametrosEntrada(parametrosEntrada: ParametrosEntrada) {
+    localStorage.setItem('ParametrosEntrada',JSON.stringify(parametrosEntrada));
   }
 
-  TotalizarPorTipo(tipo: string): number {
-    return (tipo != "Todos")? this.get().filter(p => p.sexo == tipo).length : this.TotalizarParametrosEntradas();
+  deleteParametrosEntrada() {
+    localStorage.removeItem('ParametrosEntrada');
   }
 
-  TotalizarParametrosEntradas(): number {
-    return this.get().length;
+  postPesosOptimos(pesosOptimos: MatrizPesosSinapticos) {
+    localStorage.setItem('PesosOptimos',JSON.stringify(pesosOptimos));
+  }
+
+  getPesosOptimos(): MatrizPesosSinapticos {
+    let pesosOptimos = localStorage.getItem('PesosOptimos');
+    return pesosOptimos ? JSON.parse(pesosOptimos) : null;
+  }
+
+  deletePesosOptimos() {
+    localStorage.removeItem('PesosOptimos');
   }
 }

@@ -1,8 +1,13 @@
+import { Patron } from "./patron";
+
 export class ParametrosEntrada {
-    identificacion: string;
-    nombres: string;
-    apellidos: string;
-    sexo: string;
-    edad: number;
-    pulsaciones: number;
+    encabezados: string[] = ['#', 'X1', 'X2', 'YD1'];
+    numeroEntradas: any = 'N/A';
+    numeroSalidas: any = 'N/A';
+    numeroPatrones: any = 'N/A';
+    patrones: Patron[] = [];
+
+    constructor() {
+        for (let i = 0; i < 100; i++) this.patrones.push(new Patron(i + 1, ['N/A', 'N/A', 'N/A']));
+    }
 }
