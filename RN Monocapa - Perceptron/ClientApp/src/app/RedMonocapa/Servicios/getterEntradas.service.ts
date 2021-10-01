@@ -1,4 +1,5 @@
-import { Columna } from "../Modelos/columna";
+import { ToastrService } from "ngx-toastr";
+import { Fila } from "../Modelos/fila";
 import { MatrizPesosSinapticos } from "../Modelos/matrizPesosSinapticos";
 import { ParametrosEntrada } from "../Modelos/parametrosEntrada";
 import { Patron } from "../Modelos/patron";
@@ -66,16 +67,45 @@ export class GetterEntradasService {
       this.getSalidas(linea).forEach(salida => {
         valores.push(parseInt(salida));
       });
-      patrones.push(new Patron(indice,valores));
+      patrones.push(new Patron(indice, valores));
     });
     return patrones;
   }
-  
-  getPesosSinapticosRandom(numeroColumnas: number, numeroFilas: number): MatrizPesosSinapticos {
+
+  getPesosSinapticosFile(inputFile, numeroFilas: number, numeroColumnas: number, toastr: ToastrService): MatrizPesosSinapticos {
     let matrizPesosSinapticos = new MatrizPesosSinapticos();
-    for(let i=0; i< numeroColumnas; i++) matrizPesosSinapticos.columnas.push(new Columna());
-    matrizPesosSinapticos.columnas.forEach(columna => {
-      for(let i=0; i< numeroFilas; i++) columna.filas.push();
+    let lineas: string[] = inputFile.split("\n");
+    if (lineas.length != numeroFilas || lineas[0].split(';').length != numeroColumnas) {
+      toastr.warning('El numero de filas o columnas del archivo cargado no coincide con el numero de entradas o salidas', 'Advertencia');
+      return matrizPesosSinapticos;
+    }
+    matrizPesosSinapticos.encabezados = [];
+    matrizPesosSinapticos.filas = [];
+    matrizPesosSinapticos.encabezados.push('#');
+    let indiceFilas = 0;
+    for (let i = 0; i < numeroColumnas; i++) matrizPesosSinapticos.encabezados.push((i + 1).toString());
+    lineas.forEach(linea => {
+      indiceFilas += 1;
+      let columnas: number[] = [];
+      this.getEntradas(linea).forEach(columna => {
+        columnas.push(parseFloat(columna));
+      });;
+      matrizPesosSinapticos.filas.push(new Fila(indiceFilas, columnas));
+    });
+    return matrizPesosSinapticos;
+  }
+
+  getPesosSinapticosRandom(numeroFilas: number, numeroColumnas: number): MatrizPesosSinapticos {
+    let matrizPesosSinapticos = new MatrizPesosSinapticos();
+    matrizPesosSinapticos.encabezados = [];
+    matrizPesosSinapticos.filas = [];
+    matrizPesosSinapticos.encabezados.push('#');
+    for (let i = 0; i < numeroColumnas; i++) matrizPesosSinapticos.encabezados.push((i + 1).toString());
+    for (let i = 0; i < numeroFilas; i++) matrizPesosSinapticos.filas.push(new Fila(i + 1, []));
+    matrizPesosSinapticos.filas.forEach(fila => {
+      for (let i = 0; i < numeroColumnas; i++) {
+        fila.columnas.push(Math.random() * (1 - (-1)) + (-1));
+      }
     });
     return matrizPesosSinapticos;
   }
