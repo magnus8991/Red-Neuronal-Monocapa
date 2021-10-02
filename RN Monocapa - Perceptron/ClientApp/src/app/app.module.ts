@@ -47,8 +47,7 @@ import { MatButtonModule } from '@angular/material/button';
     ReactiveFormsModule,
     ToastrModule.forRoot({
       timeOut: 3500,
-      positionClass: 'toast-top-right',
-      preventDuplicates: true
+      positionClass: 'toast-top-right'
     }),
     MatSlideToggleModule,
     MatTableModule,

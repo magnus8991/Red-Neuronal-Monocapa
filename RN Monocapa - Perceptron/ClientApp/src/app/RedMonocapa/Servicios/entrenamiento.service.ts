@@ -1,4 +1,5 @@
 import { Injectable, Inject } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { MatrizPesosSinapticos } from '../Modelos/matrizPesosSinapticos';
 import { ParametrosEntrada } from '../Modelos/parametrosEntrada';
 
@@ -7,7 +8,9 @@ import { ParametrosEntrada } from '../Modelos/parametrosEntrada';
 })
 export class EntrenamientoService {
 
-  constructor() { }
+  constructor(
+    private toastr: ToastrService
+  ) { }
 
   getParametrosEntrada(): ParametrosEntrada {
     let parametrosEntrada = localStorage.getItem('ParametrosEntrada');

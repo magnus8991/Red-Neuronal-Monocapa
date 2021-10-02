@@ -122,14 +122,16 @@
                 </div>
                 <br>
                 <div class="row">
-                    <mat-card>
-                        <div class="col-md-6" style="text-align: center;">
-
-                        </div>
-                        <div class="col-md-6" style="text-align: center;">
-
-                        </div>
-                    </mat-card>
+                    <div class="col-md-6" style="text-align: center;">
+                        <mat-card>
+                            <button mat-raised-button (click)="reiniciarParametrosYConfiguracion()" color="primary">Borrar Parámetros y Configuración</button>
+                        </mat-card>
+                    </div>
+                    <div class="col-md-6" style="text-align: center;">
+                        <mat-card>
+                            <button mat-raised-button (click)="reiniciarEntrenamiento()" color="primary">Reiniciar Entrenamiento</button>
+                        </mat-card>
+                    </div>
                 </div>
             </mat-step>
             <mat-step>
@@ -140,7 +142,7 @@
                             <label for="archivoEntradas">Inicialización de Pesos Sinápticos</label>
                             <br><br>
                             <div class="form-group">
-                                <mat-slide-toggle (ngModelChange)="toggleArchivoPesos($event)"
+                                <mat-slide-toggle (change)="toggleArchivoPesos($event)"
                                     [(ngModel)]="checkFilePesos">
                                     Cargar pesos por medio de un archivo
                                 </mat-slide-toggle>
@@ -200,6 +202,19 @@
                                     aria-label="Elementos por página">
                                 </mat-paginator>
                             </div>
+                        </mat-card>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-6" style="text-align: center;">
+                        <mat-card>
+                            <button mat-raised-button (click)="reiniciarStepPesos()" color="primary">Borrar Pesos Sinápticos</button>
+                        </mat-card>
+                    </div>
+                    <div class="col-md-6" style="text-align: center;">
+                        <mat-card>
+                            <button mat-raised-button (click)="reiniciarEntrenamiento()" color="primary">Reiniciar Entrenamiento</button>
                         </mat-card>
                     </div>
                 </div>

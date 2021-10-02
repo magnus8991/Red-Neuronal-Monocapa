@@ -1,10 +1,18 @@
+import { Injectable } from "@angular/core";
 import { ToastrService } from "ngx-toastr";
 import { Fila } from "../Modelos/fila";
 import { MatrizPesosSinapticos } from "../Modelos/matrizPesosSinapticos";
 import { ParametrosEntrada } from "../Modelos/parametrosEntrada";
 import { Patron } from "../Modelos/patron";
 
+@Injectable({
+  providedIn: 'root'
+})
 export class GetterEntradasService {
+
+  constructor(
+    private toastr: ToastrService
+  ) {}
 
   getParametrosEntrada(inputFile): ParametrosEntrada {
     let parametros = new ParametrosEntrada();
@@ -72,11 +80,11 @@ export class GetterEntradasService {
     return patrones;
   }
 
-  getPesosSinapticosFile(inputFile, numeroFilas: number, numeroColumnas: number, toastr: ToastrService): MatrizPesosSinapticos {
+  getPesosSinapticosFile(inputFile, numeroFilas: number, numeroColumnas: number): MatrizPesosSinapticos {
     let matrizPesosSinapticos = new MatrizPesosSinapticos();
     let lineas: string[] = inputFile.split("\n");
     if (lineas.length != numeroFilas || lineas[0].split(';').length != numeroColumnas) {
-      toastr.warning('El numero de filas o columnas del archivo cargado no coincide con el numero de entradas o salidas', 'Advertencia');
+      this.toastr.warning('El numero de filas o columnas del archivo cargado no coincide con el numero de entradas o salidas', 'Advertencia');
       return matrizPesosSinapticos;
     }
     matrizPesosSinapticos.encabezados = [];

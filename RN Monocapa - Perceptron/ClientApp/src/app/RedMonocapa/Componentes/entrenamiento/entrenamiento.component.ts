@@ -21,7 +21,6 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
   dataSource: MatTableDataSource<Patron>;
   dataSourcePesos: MatTableDataSource<Fila>;
   parametrosEntrada: ParametrosEntrada;
-  getterEntradas: GetterEntradasService;
   formParametrosEntrada: FormGroup;
   formParametrosEntrenamiento: FormGroup;
   checkRampa: boolean = false;
@@ -45,8 +44,10 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
   spinnerAnteriorMode: string = 'determinate';
   errorCheckAleatorio: boolean = false;
   errorCheckAnterior: boolean = false;
+  errorCheckFile: boolean = false;
 
   constructor(private builder: FormBuilder,
+    private getterEntradas: GetterEntradasService,
     private entrenamientoService: EntrenamientoService,
     private toastr: ToastrService) { }
 
@@ -73,8 +74,9 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     });
     this.mostrarContenidoEntradas();
     this.mostrarContenidoPesos();
-    this.getterEntradas = new GetterEntradasService();
   }
+
+  //Cargue del archivo de los parametros de entrada
 
   crearArchivo(event, opcion: string) {
     if (event.target.files.length > 0) {
@@ -100,11 +102,11 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
           this.parametrosEntrada = this.getterEntradas.getParametrosEntrada(reader.result);
           this.mostrarContenidoEntradas();
           this.entrenamientoService.postParametrosEntrada(this.parametrosEntrada);
-          this.deshabilitarCargueArchivoPesos();
+          this.reiniciarStepPesos();
           break;
         case 'pesos':
           this.pesosSinapticos = this.getterEntradas.getPesosSinapticosFile(reader.result,this.parametrosEntrada.numeroEntradas,
-            this.parametrosEntrada.numeroSalidas,this.toastr);
+            this.parametrosEntrada.numeroSalidas);
           if (this.pesosSinapticos.filas[0].columnas[0] == 'N/A') {
             fileHtml.value = '';
             fileName.innerHTML = 'Cargar Archivo';
@@ -115,6 +117,8 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     };
     reader.readAsText(inputFile, 'ISO-8859-1');
   }
+
+  //Visualizacion del contenido de los parametros de entrada y de los pesos sinapticos
 
   mostrarContenidoEntradas() {
     this.displayedColumns = this.parametrosEntrada.encabezados;
@@ -133,6 +137,8 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     this.dataSourcePesos.sort = this.sortPesos;
   }
 
+  //Operaciones de los slide toggles de la funcion de activacion
+
   toggleRampa(event) {
     switch (event) {
       case true: this.checkEscalon = false; break;
@@ -147,9 +153,20 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     }
   }
 
+  //Operaciones de los slide toggles de los pesos sinapticos
+
   toggleArchivoPesos(event) {
-    switch (event) {
+    if (this.errorCheckFile) event.source.checked = true;
+    switch (event.source.checked) {
       case true:
+        if (this.parametrosEntrada.numeroEntradas == 'N/A' || this.parametrosEntrada.numeroSalidas == 'N/A') {
+          event.source.checked = false;
+          this.deshabilitarCargueArchivoPesos();
+          this.toastr.warning('Debe cargar el archivo de los parámetros de entrada', '¡Advertencia!');
+          this.errorCheckFile = true;
+          return;
+        }
+        this.errorCheckFile = false;
         this.pesosSinapticos = new MatrizPesosSinapticos();
         this.checkPesosAleatorios = false; this.checkPesosAnteriores = false;
         this.disabledFilePesos = false;
@@ -158,7 +175,7 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
         this.reiniciarMatrizDePesos();
         break;
       case false:
-        this.reiniciarMatrizDePesos();
+        if (!this.errorCheckFile) this.reiniciarMatrizDePesos();
         this.deshabilitarCargueArchivoPesos();
         break;
     }
@@ -198,12 +215,26 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     switch (event.source.checked) {
       case true:
         this.spinnerAnteriorMode = 'indeterminate';
+        if (this.parametrosEntrada.numeroEntradas == 'N/A' || this.parametrosEntrada.numeroSalidas == 'N/A') {
+          event.source.checked = false;
+          this.deshabilitarPesoAnterior();
+          this.toastr.warning('Debe cargar el archivo de los parámetros de entrada', '¡Advertencia!');
+          this.errorCheckAnterior = true;
+          return;
+        }
         let data = this.entrenamientoService.getPesosOptimos();
         this.pesosSinapticos = data ? data : new MatrizPesosSinapticos();
         if (!data) {
           event.source.checked = false;
           this.deshabilitarPesoAnterior();
           this.toastr.error('No existen pesos en almacenamiento local', '¡Oh no!');
+          this.errorCheckAnterior = true;
+          return;
+        }
+        if (data.filas.length != this.parametrosEntrada.numeroEntradas || data.filas[0].columnas.length != this.parametrosEntrada.numeroSalidas) {
+          event.source.checked = false;
+          this.deshabilitarPesoAnterior();
+          this.toastr.warning('El numero de filas o columnas del archivo cargado no coincide con el numero de entradas o salidas', 'Advertencia');
           this.errorCheckAnterior = true;
           return;
         }
@@ -221,6 +252,8 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
         break;
     }
   }
+
+  //Operaciones de habilitacion y deshabilitacion de los toggles de los pesos sinapticos
 
   deshabilitarCargueArchivoPesos() {
     var inputFile = <HTMLInputElement>document.getElementById('file-2');
@@ -254,6 +287,8 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     this.labelAleatorio = '¡Listo!';
   }
 
+  //Operaciones de reinicio de valores
+
   reiniciarMatrizDePesos() {
     this.pesosSinapticos = new MatrizPesosSinapticos();
     this.mostrarContenidoPesos();
@@ -263,6 +298,7 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     this.checkFilePesos = false;
     this.checkPesosAleatorios = false;
     this.checkPesosAnteriores = false;
+    this.deshabilitarCargueArchivoPesos();
     this.deshabilitarPesoAnterior();
     this.deshabilitarPesoAleatorio();
     this.reiniciarMatrizDePesos();
@@ -277,6 +313,15 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     this.numeroIteraciones.setValue(1);
     this.rataAprendizaje.setValue(0.1);
     this.errorMaximoPermitido.setValue(0.1);
+    var inputFile = <HTMLInputElement>document.getElementById('file-1');
+    var fileName = <HTMLSpanElement>document.getElementById('iborrainputfile');
+    inputFile.value = '';
+    fileName.innerHTML = 'Cargar Archivo';
+  }
+
+  reiniciarParametrosYConfiguracion() {
+    this.reiniciarStepEntradas();
+    this.reiniciarStepPesos();
   }
 
   reiniciarEntrenamiento() {
@@ -284,10 +329,12 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     this.reiniciarStepPesos();
   }
 
+  //Obtencion de los controles del formulario
+
   get numeroEntradas() { return this.formParametrosEntrada.get('numeroEntradas') }
   get numeroSalidas() { return this.formParametrosEntrada.get('numeroSalidas'); }
   get numeroPatrones() { return this.formParametrosEntrada.get('numeroPatrones'); }
-  get numeroIteraciones() { return this.formParametrosEntrada.get('numeroIteraciones') }
-  get rataAprendizaje() { return this.formParametrosEntrada.get('rataAprendizaje'); }
-  get errorMaximoPermitido() { return this.formParametrosEntrada.get('errorMaximoPermitido'); }
+  get numeroIteraciones() { return this.formParametrosEntrenamiento.get('numeroIteraciones') }
+  get rataAprendizaje() { return this.formParametrosEntrenamiento.get('rataAprendizaje'); }
+  get errorMaximoPermitido() { return this.formParametrosEntrenamiento.get('errorMaximoPermitido'); }
 }
