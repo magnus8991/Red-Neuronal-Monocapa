@@ -52,6 +52,28 @@ mat-stepper {
     background-size: 100%;
 }
 
+/**********Color MatButtons**********/
+
+.mat-success {
+    background-color: rgb(57, 123, 194) !important;
+    color: #FFFFFF;
+}
+
+.mat-save {
+    background-color: rgb(57, 194, 57) !important;
+    color: #FFFFFF;
+}
+
+.mat-export {
+    background-color: rgb(128, 136, 128) !important;
+    color: #FFFFFF;
+}
+
+.mat-rollback {
+    background-color: rgb(232, 147, 21) !important;
+    color: #FFFFFF;
+}
+
 /**********File Inputs**********/
 
 .archivo {

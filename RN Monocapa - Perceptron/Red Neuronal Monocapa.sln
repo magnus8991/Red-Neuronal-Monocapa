@@ -3,13 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PulsacionesDotNet", "PulsacionesDotNet.csproj", "{C8EE7F59-E425-404E-9072-BEB013826CE9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Datos", "Datos\Datos.csproj", "{92864A32-1B78-44A9-B929-B354D75212A7}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logica", "Logica\Logica.csproj", "{833EC010-1089-4C90-8841-05F4F568E182}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entity", "Entity\Entity.csproj", "{5AB63A9D-FEC5-4B60-BE8C-CE4B3C864C1F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedMonocapa", "RedMonocapa.csproj", "{C8EE7F59-E425-404E-9072-BEB013826CE9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -45,6 +45,7 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
   errorCheckAleatorio: boolean = false;
   errorCheckAnterior: boolean = false;
   errorCheckFile: boolean = false;
+  entrenando: boolean = false;
 
   constructor(private builder: FormBuilder,
     private getterEntradas: GetterEntradasService,
@@ -325,8 +326,28 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
   }
 
   reiniciarEntrenamiento() {
+    if (!this.entrenando) {
+      this.toastr.warning('Debe entrenar la red primero','¡Advertencia!');
+    }
     this.reiniciarStepEntradas();
     this.reiniciarStepPesos();
+  }
+
+  //Operaciones de entrenamiento de la red neuronal
+
+  entrenar() {
+  }
+
+  guardarPesosOptimos() {
+    if (!this.entrenando) {
+      this.toastr.warning('Debe entrenar la red primero','¡Advertencia!');
+    }
+  }
+
+  exportarPesosOptimos() {
+    if (!this.entrenando) {
+      this.toastr.warning('Debe entrenar la red primero','¡Advertencia!');
+    }
   }
 
   //Obtencion de los controles del formulario
