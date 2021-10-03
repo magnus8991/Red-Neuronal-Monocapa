@@ -45,7 +45,7 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
   errorCheckAleatorio: boolean = false;
   errorCheckAnterior: boolean = false;
   errorCheckFile: boolean = false;
-  entrenando: boolean = false;
+  redEntrenada: boolean = false;
 
   constructor(private builder: FormBuilder,
     private getterEntradas: GetterEntradasService,
@@ -106,9 +106,9 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
           this.reiniciarStepPesos();
           break;
         case 'pesos':
-          this.pesosSinapticos = this.getterEntradas.getPesosSinapticosFile(reader.result,this.parametrosEntrada.numeroEntradas,
+          this.pesosSinapticos = this.getterEntradas.getPesosSinapticosFile(reader.result, this.parametrosEntrada.numeroEntradas,
             this.parametrosEntrada.numeroSalidas);
-          if (this.pesosSinapticos.filas[0].columnas[0] == 'N/A') {
+          if (!this.checkMatrizPesos()) {
             fileHtml.value = '';
             fileName.innerHTML = 'Cargar Archivo';
           }
@@ -160,7 +160,7 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     if (this.errorCheckFile) event.source.checked = true;
     switch (event.source.checked) {
       case true:
-        if (this.parametrosEntrada.numeroEntradas == 'N/A' || this.parametrosEntrada.numeroSalidas == 'N/A') {
+        if (!this.checkParametrosEntrada()) {
           event.source.checked = false;
           this.deshabilitarCargueArchivoPesos();
           this.toastr.warning('Debe cargar el archivo de los parámetros de entrada', '¡Advertencia!');
@@ -187,7 +187,7 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     switch (event.source.checked) {
       case true:
         this.spinnerAleatorioMode = 'indeterminate';
-        if (this.parametrosEntrada.numeroEntradas == 'N/A' || this.parametrosEntrada.numeroSalidas == 'N/A') {
+        if (!this.checkParametrosEntrada()) {
           event.source.checked = false;
           this.deshabilitarPesoAleatorio();
           this.toastr.warning('Debe cargar el archivo de los parámetros de entrada', '¡Advertencia!');
@@ -195,7 +195,7 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
           return;
         }
         this.errorCheckAleatorio = false;
-        this.checkFilePesos = false; 
+        this.checkFilePesos = false;
         this.checkPesosAnteriores = false;
         this.deshabilitarCargueArchivoPesos();
         this.pesosSinapticos = this.getterEntradas.getPesosSinapticosRandom(this.parametrosEntrada.numeroEntradas,
@@ -216,7 +216,7 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     switch (event.source.checked) {
       case true:
         this.spinnerAnteriorMode = 'indeterminate';
-        if (this.parametrosEntrada.numeroEntradas == 'N/A' || this.parametrosEntrada.numeroSalidas == 'N/A') {
+        if (!this.checkParametrosEntrada()) {
           event.source.checked = false;
           this.deshabilitarPesoAnterior();
           this.toastr.warning('Debe cargar el archivo de los parámetros de entrada', '¡Advertencia!');
@@ -240,7 +240,7 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
           return;
         }
         this.errorCheckAnterior = false;
-        this.checkPesosAleatorios = false; 
+        this.checkPesosAleatorios = false;
         this.checkFilePesos = false;
         this.mostrarContenidoPesos();
         this.deshabilitarCargueArchivoPesos();
@@ -326,8 +326,8 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
   }
 
   reiniciarEntrenamiento() {
-    if (!this.entrenando) {
-      this.toastr.warning('Debe entrenar la red primero','¡Advertencia!');
+    if (!this.redEntrenada) {
+      this.toastr.warning('Debe entrenar la red primero', '¡Advertencia!');
     }
     this.reiniciarStepEntradas();
     this.reiniciarStepPesos();
@@ -336,17 +336,24 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
   //Operaciones de entrenamiento de la red neuronal
 
   entrenar() {
+    if (!this.checkConfiguracionRed()) {
+      this.toastr.warning(!this.checkParametrosEntrada() ? 'Verifique el cargue y la configuración de los parámetros de entrada' :
+        !this.checkFuncionActivacion() ? 'Verifique la configuración de la función de activación' :
+          !this.checkParametrosEntrenamiento() ? 'Verifique la configuración de los parámetros de entrenamiento' :
+            'Verifique la configuración de los pesos sinápticos', '¡Advertencia!');
+      return;
+    }
   }
 
   guardarPesosOptimos() {
-    if (!this.entrenando) {
-      this.toastr.warning('Debe entrenar la red primero','¡Advertencia!');
+    if (!this.redEntrenada) {
+      this.toastr.warning('Debe entrenar la red primero', '¡Advertencia!');
     }
   }
 
   exportarPesosOptimos() {
-    if (!this.entrenando) {
-      this.toastr.warning('Debe entrenar la red primero','¡Advertencia!');
+    if (!this.redEntrenada) {
+      this.toastr.warning('Debe entrenar la red primero', '¡Advertencia!');
     }
   }
 
@@ -358,4 +365,40 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
   get numeroIteraciones() { return this.formParametrosEntrenamiento.get('numeroIteraciones') }
   get rataAprendizaje() { return this.formParametrosEntrenamiento.get('rataAprendizaje'); }
   get errorMaximoPermitido() { return this.formParametrosEntrenamiento.get('errorMaximoPermitido'); }
+
+  //Validaciones Form Fields, Slide Toggles y Tablas
+
+  checkConfiguracionRed() {
+    return this.checkParametrosEntrada() && this.checkFuncionActivacion() && this.checkParametrosEntrenamiento() &&
+      this.checkMatrizPesos() ? true : false;
+  }
+
+  checkParametrosEntrada() {
+    return this.parametrosEntrada.numeroEntradas == 'N/A' || this.parametrosEntrada.numeroSalidas == 'N/A' ? false : true;
+  }
+
+  checkMatrizPesos() {
+    return this.pesosSinapticos.filas[0].columnas[0] == 'N/A' ? false : true;
+  }
+
+  checkFuncionActivacion() {
+    return this.checkEscalon || this.checkRampa ? true : false;
+  }
+
+  checkParametrosEntrenamiento() {
+    return this.checkNumeroIteraciones() && this.checkRataAprendizaje() && this.checkErrorMaximoPermitido() ? true : false;
+  }
+
+  checkNumeroIteraciones() {
+    return this.numeroIteraciones.value <= 0 || this.numeroIteraciones.value == null || this.numeroIteraciones.value == undefined ? false : true;
+  }
+
+  checkRataAprendizaje() {
+    return parseFloat(this.rataAprendizaje.value) <= 0 || parseFloat(this.rataAprendizaje.value) > 1 || 
+    this.rataAprendizaje.value == null || this.rataAprendizaje.value == undefined ? false : true;
+  }
+
+  checkErrorMaximoPermitido() {
+    return parseFloat(this.errorMaximoPermitido.value) < 0 || this.errorMaximoPermitido.value == null || this.errorMaximoPermitido.value == undefined ? false : true;
+  }
 }
