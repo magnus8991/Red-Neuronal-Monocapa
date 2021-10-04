@@ -1,9 +1,8 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { ParametrosEntrada } from '../../Modelos/parametrosEntrada';
-import { EntrenamientoService } from '../../Servicios/entrenamiento.service';
+import { ParametrosEntrenamientoService } from '../../Servicios/parametrosEntrenamiento.service';
 import { ToastrService } from 'ngx-toastr';
-import { Form, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ThrowStmt } from '@angular/compiler';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { Patron } from '../../Modelos/patron';
 import { MatPaginator } from '@angular/material/paginator';
@@ -11,6 +10,9 @@ import { MatSort } from '@angular/material/sort';
 import { GetterEntradasService } from '../../Servicios/getterEntradas.service';
 import { MatrizPesosSinapticos } from '../../Modelos/matrizPesosSinapticos';
 import { Fila } from '../../Modelos/fila';
+import { TablaErroresRMS } from '../../Modelos/tablaErroresRms';
+import { EntrenamientoService } from '../../Servicios/entrenamiento.service';
+import { ValidacionesService } from '../../Servicios/validaciones.service';
 
 @Component({
   selector: 'app-entrenamiento',
@@ -20,7 +22,11 @@ import { Fila } from '../../Modelos/fila';
 export class EntrenamientoComponent implements OnInit, AfterViewInit {
   dataSource: MatTableDataSource<Patron>;
   dataSourcePesos: MatTableDataSource<Fila>;
+  dataSourcePesosOptimos: MatTableDataSource<Fila>;
+  dataSourceErrores: MatTableDataSource<TablaErroresRMS>;
   parametrosEntrada: ParametrosEntrada;
+  pesosSinapticos: MatrizPesosSinapticos;
+  tablaErrores: TablaErroresRMS[] = [];
   formParametrosEntrada: FormGroup;
   formParametrosEntrenamiento: FormGroup;
   checkRampa: boolean = false;
@@ -31,11 +37,16 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
   checkPesosAnteriores: boolean = false;
   displayedColumns: string[];
   displayedColumnsPesos: string[];
+  displayedColumnsPesosOptimos: string[];
+  displayedColumnsErrores: string[] = ['No. Iteración', 'Error RMS'];
   @ViewChild('paginator') paginator: MatPaginator;
   @ViewChild('sort') sort: MatSort;
   @ViewChild('paginatorPesos') paginatorPesos: MatPaginator;
   @ViewChild('sortPesos') sortPesos: MatSort;
-  pesosSinapticos: MatrizPesosSinapticos;
+  @ViewChild('paginatorPesosOptimos') paginatorPesosOptimos: MatPaginator;
+  @ViewChild('sortPesosOptimos') sortPesosOptimos: MatSort;
+  @ViewChild('paginatorErrores') paginatorErrores: MatPaginator;
+  @ViewChild('sortErrores') sortErrores: MatSort;
   labelAleatorio: string = 'Sin procesar';
   spinnerAleatorioValue: number = 0;
   spinnerAleatorioMode: string = 'determinate';
@@ -49,18 +60,26 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
 
   constructor(private builder: FormBuilder,
     private getterEntradas: GetterEntradasService,
+    private parametrosEntrenamientoService: ParametrosEntrenamientoService,
     private entrenamientoService: EntrenamientoService,
-    private toastr: ToastrService) { }
+    private validaciones: ValidacionesService,
+    private toastr: ToastrService) {
+    for (let i = 0; i < 5; i++) this.tablaErrores.push(new TablaErroresRMS(i + 1, 'N/A'));
+  }
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
     this.dataSourcePesos.paginator = this.paginatorPesos;
     this.dataSourcePesos.sort = this.sortPesos;
+    this.dataSourcePesosOptimos.paginator = this.paginatorPesosOptimos;
+    this.dataSourcePesosOptimos.sort = this.sortPesosOptimos;
+    this.dataSourceErrores.paginator = this.paginatorErrores;
+    this.dataSourceErrores.sort = this.sortErrores;
   }
 
   ngOnInit(): void {
-    let data = this.entrenamientoService.getParametrosEntrada();
+    let data = this.parametrosEntrenamientoService.getParametrosEntrada();
     this.parametrosEntrada = data ? data : new ParametrosEntrada();
     this.pesosSinapticos = new MatrizPesosSinapticos();
     this.formParametrosEntrada = this.builder.group({
@@ -75,6 +94,8 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     });
     this.mostrarContenidoEntradas();
     this.mostrarContenidoPesos();
+    this.mostrarContenidoPesosOptimos();
+    this.mostrarContenidoErrores();
   }
 
   //Cargue del archivo de los parametros de entrada
@@ -102,13 +123,13 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
         case 'entradas':
           this.parametrosEntrada = this.getterEntradas.getParametrosEntrada(reader.result);
           this.mostrarContenidoEntradas();
-          this.entrenamientoService.postParametrosEntrada(this.parametrosEntrada);
+          this.parametrosEntrenamientoService.postParametrosEntrada(this.parametrosEntrada);
           this.reiniciarStepPesos();
           break;
         case 'pesos':
           this.pesosSinapticos = this.getterEntradas.getPesosSinapticosFile(reader.result, this.parametrosEntrada.numeroEntradas,
             this.parametrosEntrada.numeroSalidas);
-          if (!this.checkMatrizPesos()) {
+          if (!this.validaciones.checkMatrizPesos(this.pesosSinapticos)) {
             fileHtml.value = '';
             fileName.innerHTML = 'Cargar Archivo';
           }
@@ -138,6 +159,19 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     this.dataSourcePesos.sort = this.sortPesos;
   }
 
+  mostrarContenidoPesosOptimos() {
+    this.displayedColumnsPesosOptimos = this.pesosSinapticos.encabezados;
+    this.dataSourcePesosOptimos = new MatTableDataSource<Fila>(this.pesosSinapticos.filas);
+    this.dataSourcePesos.paginator = this.paginatorPesosOptimos;
+    this.dataSourcePesos.sort = this.sortPesosOptimos;
+  }
+
+  mostrarContenidoErrores() {
+    this.dataSourceErrores = new MatTableDataSource<TablaErroresRMS>(this.tablaErrores);
+    this.dataSourceErrores.paginator = this.paginatorErrores;
+    this.dataSourceErrores.sort = this.sortErrores;
+  }
+
   //Operaciones de los slide toggles de la funcion de activacion
 
   toggleRampa(event) {
@@ -160,7 +194,7 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     if (this.errorCheckFile) event.source.checked = true;
     switch (event.source.checked) {
       case true:
-        if (!this.checkParametrosEntrada()) {
+        if (!this.validaciones.checkParametrosEntrada(this.parametrosEntrada)) {
           event.source.checked = false;
           this.deshabilitarCargueArchivoPesos();
           this.toastr.warning('Debe cargar el archivo de los parámetros de entrada', '¡Advertencia!');
@@ -187,7 +221,7 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     switch (event.source.checked) {
       case true:
         this.spinnerAleatorioMode = 'indeterminate';
-        if (!this.checkParametrosEntrada()) {
+        if (!this.validaciones.checkParametrosEntrada(this.parametrosEntrada)) {
           event.source.checked = false;
           this.deshabilitarPesoAleatorio();
           this.toastr.warning('Debe cargar el archivo de los parámetros de entrada', '¡Advertencia!');
@@ -216,14 +250,14 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     switch (event.source.checked) {
       case true:
         this.spinnerAnteriorMode = 'indeterminate';
-        if (!this.checkParametrosEntrada()) {
+        if (!this.validaciones.checkParametrosEntrada(this.parametrosEntrada)) {
           event.source.checked = false;
           this.deshabilitarPesoAnterior();
           this.toastr.warning('Debe cargar el archivo de los parámetros de entrada', '¡Advertencia!');
           this.errorCheckAnterior = true;
           return;
         }
-        let data = this.entrenamientoService.getPesosOptimos();
+        let data = this.parametrosEntrenamientoService.getPesosOptimos();
         this.pesosSinapticos = data ? data : new MatrizPesosSinapticos();
         if (!data) {
           event.source.checked = false;
@@ -290,9 +324,32 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
 
   //Operaciones de reinicio de valores
 
-  reiniciarMatrizDePesos() {
-    this.pesosSinapticos = new MatrizPesosSinapticos();
-    this.mostrarContenidoPesos();
+  reiniciarParametrosYConfiguracion() {
+    this.reiniciarStepEntradas();
+    this.reiniciarStepPesos();
+  }
+
+  reiniciarEntrenamiento() {
+    this.reiniciarStepEntradas();
+    this.reiniciarStepPesos();
+    this.mostrarContenidoPesosOptimos();
+    this.reiniciarMatrizDeErrores();
+    this.redEntrenada = false;
+  }
+
+  reiniciarStepEntradas() {
+    this.parametrosEntrada = new ParametrosEntrada();
+    this.mostrarContenidoEntradas();
+    this.parametrosEntrenamientoService.deleteParametrosEntrada();
+    this.checkRampa = false;
+    this.checkEscalon = false;
+    this.numeroIteraciones.setValue(1);
+    this.rataAprendizaje.setValue(0.1);
+    this.errorMaximoPermitido.setValue(0.1);
+    var inputFile = <HTMLInputElement>document.getElementById('file-1');
+    var fileName = <HTMLSpanElement>document.getElementById('iborrainputfile');
+    inputFile.value = '';
+    fileName.innerHTML = 'Cargar Archivo';
   }
 
   reiniciarStepPesos() {
@@ -305,56 +362,63 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     this.reiniciarMatrizDePesos();
   }
 
-  reiniciarStepEntradas() {
-    this.parametrosEntrada = new ParametrosEntrada();
-    this.mostrarContenidoEntradas();
-    this.entrenamientoService.deleteParametrosEntrada();
-    this.checkRampa = false;
-    this.checkEscalon = false;
-    this.numeroIteraciones.setValue(1);
-    this.rataAprendizaje.setValue(0.1);
-    this.errorMaximoPermitido.setValue(0.1);
-    var inputFile = <HTMLInputElement>document.getElementById('file-1');
-    var fileName = <HTMLSpanElement>document.getElementById('iborrainputfile');
-    inputFile.value = '';
-    fileName.innerHTML = 'Cargar Archivo';
+  reiniciarMatrizDePesos() {
+    this.pesosSinapticos = new MatrizPesosSinapticos();
+    this.mostrarContenidoPesos();
   }
 
-  reiniciarParametrosYConfiguracion() {
-    this.reiniciarStepEntradas();
-    this.reiniciarStepPesos();
-  }
-
-  reiniciarEntrenamiento() {
-    if (!this.redEntrenada) {
-      this.toastr.warning('Debe entrenar la red primero', '¡Advertencia!');
-    }
-    this.reiniciarStepEntradas();
-    this.reiniciarStepPesos();
+  reiniciarMatrizDeErrores() {
+    this.tablaErrores = [];
+    for (let i = 0; i < 5; i++) this.tablaErrores.push(new TablaErroresRMS(i + 1, 'N/A'));
+    this.mostrarContenidoErrores();
   }
 
   //Operaciones de entrenamiento de la red neuronal
 
   entrenar() {
-    if (!this.checkConfiguracionRed()) {
-      this.toastr.warning(!this.checkParametrosEntrada() ? 'Verifique el cargue y la configuración de los parámetros de entrada' :
-        !this.checkFuncionActivacion() ? 'Verifique la configuración de la función de activación' :
-          !this.checkParametrosEntrenamiento() ? 'Verifique la configuración de los parámetros de entrenamiento' :
+    if (!this.validaciones.checkConfiguracionRed(this.parametrosEntrada, this.pesosSinapticos, this.checkEscalon, this.checkRampa,
+      this.numeroIteraciones, this.rataAprendizaje, this.errorMaximoPermitido)) {
+      this.toastr.warning(!this.validaciones.checkParametrosEntrada(this.parametrosEntrada) ?
+        'Verifique el cargue y la configuración de los parámetros de entrada' :
+        !this.validaciones.checkFuncionActivacion(this.checkEscalon, this.checkRampa) ?
+          'Verifique la configuración de la función de activación' :
+          !this.validaciones.checkParametrosEntrenamiento(this.numeroIteraciones, this.rataAprendizaje, this.errorMaximoPermitido) ?
+            'Verifique la configuración de los parámetros de entrenamiento' :
             'Verifique la configuración de los pesos sinápticos', '¡Advertencia!');
       return;
     }
+    let indiceIteraciones = 0;
+    this.tablaErrores = [];
+    while (indiceIteraciones < this.numeroIteraciones.value) {
+      let erroresPatrones: number[] = [];
+      this.parametrosEntrada.patrones.forEach(patron => {
+        let entrada = patron.valores[0];
+        let erroresLineales = this.entrenamientoService.calcularErroresLineales(this.parametrosEntrada, this.pesosSinapticos,
+          this.checkRampa, this.checkEscalon, patron);
+        let errorPatron = this.entrenamientoService.errorPatron(erroresLineales, this.parametrosEntrada.numeroSalidas);
+        erroresPatrones.push(errorPatron);
+        this.pesosSinapticos = this.entrenamientoService.obtenerPesosNuevos(this.parametrosEntrada,this.pesosSinapticos,
+          this.rataAprendizaje.value,erroresLineales,entrada);
+        this.mostrarContenidoPesosOptimos();
+      });
+      let errorRMS = this.entrenamientoService.errorRMS(erroresPatrones);
+      this.tablaErrores.push(new TablaErroresRMS(indiceIteraciones+1,errorRMS));
+      this.mostrarContenidoErrores();
+      indiceIteraciones = this.tablaErrores[indiceIteraciones].error <= 0 ? this.numeroIteraciones.value : indiceIteraciones + 1;
+    }
+    this.redEntrenada = true;
   }
 
   guardarPesosOptimos() {
-    if (!this.redEntrenada) {
-      this.toastr.warning('Debe entrenar la red primero', '¡Advertencia!');
-    }
+    this.parametrosEntrenamientoService.postPesosOptimos(this.redEntrenada, this.pesosSinapticos);
   }
 
   exportarPesosOptimos() {
-    if (!this.redEntrenada) {
-      this.toastr.warning('Debe entrenar la red primero', '¡Advertencia!');
-    }
+    this.parametrosEntrenamientoService.exportPesosOptimos(this.redEntrenada, this.pesosSinapticos);
+  }
+
+  eliminarPesosOptimos() {
+    this.parametrosEntrenamientoService.deletePesosOptimos();
   }
 
   //Obtencion de los controles del formulario
@@ -365,40 +429,4 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
   get numeroIteraciones() { return this.formParametrosEntrenamiento.get('numeroIteraciones') }
   get rataAprendizaje() { return this.formParametrosEntrenamiento.get('rataAprendizaje'); }
   get errorMaximoPermitido() { return this.formParametrosEntrenamiento.get('errorMaximoPermitido'); }
-
-  //Validaciones Form Fields, Slide Toggles y Tablas
-
-  checkConfiguracionRed() {
-    return this.checkParametrosEntrada() && this.checkFuncionActivacion() && this.checkParametrosEntrenamiento() &&
-      this.checkMatrizPesos() ? true : false;
-  }
-
-  checkParametrosEntrada() {
-    return this.parametrosEntrada.numeroEntradas == 'N/A' || this.parametrosEntrada.numeroSalidas == 'N/A' ? false : true;
-  }
-
-  checkMatrizPesos() {
-    return this.pesosSinapticos.filas[0].columnas[0] == 'N/A' ? false : true;
-  }
-
-  checkFuncionActivacion() {
-    return this.checkEscalon || this.checkRampa ? true : false;
-  }
-
-  checkParametrosEntrenamiento() {
-    return this.checkNumeroIteraciones() && this.checkRataAprendizaje() && this.checkErrorMaximoPermitido() ? true : false;
-  }
-
-  checkNumeroIteraciones() {
-    return this.numeroIteraciones.value <= 0 || this.numeroIteraciones.value == null || this.numeroIteraciones.value == undefined ? false : true;
-  }
-
-  checkRataAprendizaje() {
-    return parseFloat(this.rataAprendizaje.value) <= 0 || parseFloat(this.rataAprendizaje.value) > 1 || 
-    this.rataAprendizaje.value == null || this.rataAprendizaje.value == undefined ? false : true;
-  }
-
-  checkErrorMaximoPermitido() {
-    return parseFloat(this.errorMaximoPermitido.value) < 0 || this.errorMaximoPermitido.value == null || this.errorMaximoPermitido.value == undefined ? false : true;
-  }
 }

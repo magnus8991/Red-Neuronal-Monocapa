@@ -11,7 +11,7 @@ import { SimulacionComponent } from './RedMonocapa/Componentes/simulación/simul
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule,ReactiveFormsModule } from '@angular/forms';
-import { EntrenamientoService } from './RedMonocapa/Servicios/entrenamiento.service';
+import { ParametrosEntrenamientoService } from './RedMonocapa/Servicios/parametrosEntrenamiento.service';
 import { SimulacionService } from './RedMonocapa/Servicios/simulacion.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -24,6 +24,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
+import { EntrenamientoService } from './RedMonocapa/Servicios/entrenamiento.service';
 
 @NgModule({
   declarations: [
@@ -57,7 +58,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatProgressSpinnerModule,
     MatButtonModule
   ],
-  providers: [ EntrenamientoService, SimulacionService, ToastrService ],
+  providers: [ ParametrosEntrenamientoService, SimulacionService, EntrenamientoService, ToastrService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
