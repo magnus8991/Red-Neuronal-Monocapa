@@ -12,11 +12,13 @@ export class EntrenamientoService {
   constructor() { }
 
   obtenerPesosNuevos(parametrosEntrada: ParametrosEntrada, pesosSinapticos: MatrizPesosSinapticos, rataAprendizaje: number,
-    erroresLineales: number[], entrada: number): MatrizPesosSinapticos {
+    erroresLineales: number[], entradas: number[]): MatrizPesosSinapticos {
     for (let i = 0; i < parametrosEntrada.numeroSalidas; i++) {
+      let indiceEntradas = 0;
       pesosSinapticos.filas.forEach(fila => {
-        let pesoNuevo = fila.columnas[i] + (rataAprendizaje * erroresLineales[i] * entrada);
+        let pesoNuevo = fila.columnas[i] + (rataAprendizaje * erroresLineales[i] * entradas[indiceEntradas]);
         fila.columnas[i] = pesoNuevo;
+        indiceEntradas += 1;
       })
     }
     return pesosSinapticos;
@@ -34,24 +36,34 @@ export class EntrenamientoService {
         salidaSoma += patron.valores[indicePatrones] * fila.columnas[i];
         indicePatrones += 1;
       })
-      let salidaRed = this.funcionActivacion(salidaSoma, entrada, checkRampa, checkEscalon);
+      let salidaRed = this.funcionActivacion(patron.valores, salidaSoma, entrada, checkRampa, checkEscalon, parametrosEntrada.numeroEntradas);
       erroresLineales.push(salidaDeseada - salidaRed);
     }
     return erroresLineales;
   }
 
-  funcionActivacion(salidaSoma: number, entrada: number, checkRampa: boolean, checkEscalon: boolean): number {
-    let salidaRed = 0;
-    if (checkRampa) {
-      return salidaSoma < 0 ? 0 : (salidaSoma >= 0 || salidaSoma <= 1) ? entrada : 1;
-    } else if (checkEscalon) {
-      return salidaSoma >= 0 ? 1 : 0;
+  funcionActivacion(entradas: number[], salidaSoma: number, entrada: number, checkRampa: boolean,
+    checkEscalon: boolean, numeroEntradas): number {
+    if (checkRampa) return this.funcionRampa(salidaSoma, entrada);
+    if (checkEscalon) return this.funcionEscalon(salidaSoma);
+    let valoresIguales = true;
+    let valorInicial = entradas[0];
+    for (let i = 0; i < numeroEntradas; i++) {
+      if (entradas[i] != valorInicial) valoresIguales = false;
     }
-    return salidaRed;
+    return valoresIguales ? this.funcionRampa(salidaSoma, entrada) : this.funcionEscalon(salidaSoma);
+  }
+
+  funcionRampa(salidaSoma: number, entrada: number): number {
+    return salidaSoma < 0 ? 0 : (salidaSoma >= 0 || salidaSoma <= 1) ? entrada : 1;
+  }
+
+  funcionEscalon(salidaSoma: number): number {
+    return salidaSoma >= 0 ? 1 : 0;
   }
 
   errorPatron(erroresLineales: number[], numeroSalidas: number) {
-    return (erroresLineales.reduce((sum, current) => sum + current, 0)) / numeroSalidas;
+    return (erroresLineales.reduce((sum, current) => sum + Math.abs(current), 0)) / numeroSalidas;
   }
 
   errorRMS(erroresPatrones: number[]) {

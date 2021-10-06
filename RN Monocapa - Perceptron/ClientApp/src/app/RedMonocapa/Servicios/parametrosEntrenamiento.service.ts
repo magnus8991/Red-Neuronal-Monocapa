@@ -30,16 +30,26 @@ export class ParametrosEntrenamientoService {
     return pesosOptimos ? JSON.parse(pesosOptimos) : null;
   }
 
-  postPesosOptimos(redEntrenada: boolean, pesosOptimos: MatrizPesosSinapticos) {
+  getConfiguracionRed(): string {
+    return localStorage.getItem('ConfiguracionRed');
+  }
+
+  postPesosOptimosYConfRed(redEntrenada: boolean, pesosOptimos: MatrizPesosSinapticos, configuracionRed: string) {
     if (!redEntrenada) {
       this.toastr.warning('Debe entrenar la red primero', '¡Advertencia!');
       return;
     }
     localStorage.setItem('PesosOptimos', JSON.stringify(pesosOptimos));
-    this.toastr.info('Pesos óptimos guardados correctamente (se almacenaron en localStorage)', '¡Operación exitosa!');
+    localStorage.setItem('ConfiguracionRed', configuracionRed);
+    this.toastr.info('Pesos óptimos y configuración guardados correctamente (se almacenaron en localStorage)', '¡Operación exitosa!');
   }
 
   deletePesosOptimos() {
+    let pesosOptimos = localStorage.getItem('PesosOptimos');
+    if (!pesosOptimos) {
+      this.toastr.error('No existen pesos óptimos para eliminar', '¡Oh no!');
+      return;
+    }
     localStorage.removeItem('PesosOptimos');
     this.toastr.info('Pesos óptimos eliminados correctamente', '¡Operación exitosa!');
   }
@@ -67,8 +77,17 @@ export class ParametrosEntrenamientoService {
         textoArchivo += fila.columnas[i];
         textoArchivo += i == fila.columnas.length - 1 ? '' : ';';
       }
-      textoArchivo += '\n';
+      if (pesosOptimos.filas.indexOf(fila) < pesosOptimos.filas.length - 1)  textoArchivo += '\n';
     });
     return textoArchivo;
+  }
+
+  postPesosSinapticos(pesosOptimos: MatrizPesosSinapticos) {
+    localStorage.setItem('PesosSinapticos', JSON.stringify(pesosOptimos));
+  }
+
+  getPesosSinapticos(): MatrizPesosSinapticos {
+    let pesosOptimos = localStorage.getItem('PesosSinapticos');
+    return pesosOptimos ? JSON.parse(pesosOptimos) : null;
   }
 }

@@ -20,31 +20,6 @@ mat-stepper {
     padding-left: 3%; padding-right: 3%;
 }
 
-.control-label {
-    color: #FFF;
-    font-size: 120%;
-}
-
-.logoRegistro {
-    width: 100%; height: 100%;
-    padding-top: 3%;
-}
-
-.btn-secondary {
-    background: #0c4463;
-    height: 100%; font-weight: bold;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    margin-top: 5%;
-}
-
-.btn-secondary:hover {
-    background: #0e5074;
-}
-
-.btn-secondary:active {
-    background: #12618b !important;
-}
-
 .cuerpo {
     background-image: url("../../../../assets/training.jpg");
     background-position: 100%;

@@ -89,11 +89,14 @@
                                 <mat-slide-toggle (ngModelChange)="toggleRampa($event)" [(ngModel)]="checkRampa">Función
                                     Rampa
                                 </mat-slide-toggle>
-                            </div>
-                            <div class="form-group" style="text-align: center;">
-                                <mat-slide-toggle (ngModelChange)="toggleEscalon($event)" [(ngModel)]="checkEscalon">
+                                <mat-slide-toggle style="padding-left: 3%;" (ngModelChange)="toggleEscalon($event)"
+                                    [(ngModel)]="checkEscalon">
                                     Función
                                     Escalón</mat-slide-toggle>
+                            </div>
+                            <div class="form-group" style="text-align: center;">
+                                <mat-slide-toggle (ngModelChange)="toggleSistema($event)" [(ngModel)]="checkSistema">
+                                    Definida por el sistema</mat-slide-toggle>
                             </div>
                         </mat-card>
                         <br>
@@ -110,7 +113,7 @@
                                     <mat-form-field class="example-full-width" appearance="legacy" aria-disabled="true">
                                         <mat-label>Rata de Aprendizaje</mat-label>
                                         <input type="number" matInput placeholder="Rata de Aprendizaje"
-                                            name="rataAprendizaje" formControlName="rataAprendizaje" min="0.1" max="1.0"
+                                            name="rataAprendizaje" formControlName="rataAprendizaje" min="0.0" max="1.0"
                                             step="0.1" />
                                         <mat-icon matSuffix>psychology</mat-icon>
                                     </mat-form-field>
@@ -150,7 +153,7 @@
                 <div class="row">
                     <div class="col-md-4">
                         <mat-card>
-                            <label for="archivoEntradas">Inicialización de Pesos Sinápticos</label>
+                            <label for="initPesos">Inicialización de Pesos Sinápticos</label>
                             <br><br>
                             <div class="form-group">
                                 <mat-slide-toggle (change)="toggleArchivoPesos($event)" [(ngModel)]="checkFilePesos">
@@ -193,7 +196,7 @@
                     </div>
                     <div class="col-md-8">
                         <mat-card>
-                            <label for="archivoPesos">Tabla de Pesos Sinápticos</label>
+                            <label for="tablaPesosSinapticos">Tabla de Pesos Sinápticos</label>
                             <div class="table-responsive mat-elevation-z8">
                                 <table mat-table #sortPesos="matSort" [dataSource]="dataSourcePesos" matSort>
                                     <ng-container
@@ -259,9 +262,9 @@
                 <div class="row">
                     <div class="col-md-4" style="text-align: center;">
                         <mat-card>
-                            <button mat-raised-button (click)="guardarPesosOptimos()" color="save">
+                            <button mat-raised-button (click)="guardarPesosYConfRed()" color="save">
                                 <mat-icon matSuffix>save</mat-icon> Guardar Pesos
-                                Óptimos
+                                Óptimos y Conf. de la Red
                             </button>
                         </mat-card>
                     </div>
@@ -288,7 +291,8 @@
                         <mat-card>
                             <label for="archivoPesos">Tabla de Pesos Óptimos</label>
                             <div class="table-responsive mat-elevation-z8">
-                                <table mat-table #sortPesosOptimos="matSort" [dataSource]="dataSourcePesosOptimos" matSort>
+                                <table mat-table #sortPesosOptimos="matSort" [dataSource]="dataSourcePesosOptimos"
+                                    matSort>
                                     <ng-container
                                         *ngFor="let colNamePesos of displayedColumnsPesosOptimos; let colIndexPesos = index"
                                         matColumnDef="{{colNamePesos}}">

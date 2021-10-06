@@ -11,8 +11,9 @@ export class ValidacionesService {
   constructor() { }
 
   checkConfiguracionRed(parametrosEntrada: ParametrosEntrada, pesosSinapticos: MatrizPesosSinapticos, checkEscalon: boolean,
-    checkRampa: boolean, numeroIteraciones: AbstractControl, rataAprendizaje: AbstractControl, errorMaximoPermitido: AbstractControl) {
-    return this.checkParametrosEntrada(parametrosEntrada) && this.checkFuncionActivacion(checkEscalon, checkRampa) &&
+    checkRampa: boolean, numeroIteraciones: AbstractControl, rataAprendizaje: AbstractControl, errorMaximoPermitido: AbstractControl,
+    checkSistema: boolean) {
+    return this.checkParametrosEntrada(parametrosEntrada) && this.checkFuncionActivacion(checkEscalon, checkRampa, checkSistema) &&
     this.checkParametrosEntrenamiento(numeroIteraciones, rataAprendizaje, errorMaximoPermitido) && this.checkMatrizPesos(pesosSinapticos) ? true : false;
   }
 
@@ -24,8 +25,8 @@ export class ValidacionesService {
     return pesosSinapticos.filas[0].columnas[0] == 'N/A' ? false : true;
   }
 
-  checkFuncionActivacion(checkEscalon: boolean, checkRampa: boolean) {
-    return checkEscalon || checkRampa ? true : false;
+  checkFuncionActivacion(checkEscalon: boolean, checkRampa: boolean, checkSistema: boolean) {
+    return checkEscalon || checkRampa || checkSistema ? true : false;
   }
 
   checkParametrosEntrenamiento(numeroIteraciones: AbstractControl, rataAprendizaje: AbstractControl,

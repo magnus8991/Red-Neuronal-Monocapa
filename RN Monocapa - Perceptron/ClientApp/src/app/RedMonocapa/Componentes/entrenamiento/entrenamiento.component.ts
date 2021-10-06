@@ -31,6 +31,7 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
   formParametrosEntrenamiento: FormGroup;
   checkRampa: boolean = false;
   checkEscalon: boolean = false;
+  checkSistema: boolean = false;
   disabledFilePesos: boolean = true;
   checkFilePesos: boolean = false;
   checkPesosAleatorios: boolean = false;
@@ -133,6 +134,7 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
             fileHtml.value = '';
             fileName.innerHTML = 'Cargar Archivo';
           }
+          this.parametrosEntrenamientoService.postPesosSinapticos(this.pesosSinapticos);
           this.mostrarContenidoPesos();
           break;
       }
@@ -162,8 +164,8 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
   mostrarContenidoPesosOptimos() {
     this.displayedColumnsPesosOptimos = this.pesosSinapticos.encabezados;
     this.dataSourcePesosOptimos = new MatTableDataSource<Fila>(this.pesosSinapticos.filas);
-    this.dataSourcePesos.paginator = this.paginatorPesosOptimos;
-    this.dataSourcePesos.sort = this.sortPesosOptimos;
+    this.dataSourcePesosOptimos.paginator = this.paginatorPesosOptimos;
+    this.dataSourcePesosOptimos.sort = this.sortPesosOptimos;
   }
 
   mostrarContenidoErrores() {
@@ -175,16 +177,23 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
   //Operaciones de los slide toggles de la funcion de activacion
 
   toggleRampa(event) {
-    switch (event) {
-      case true: this.checkEscalon = false; break;
-      case false: this.checkEscalon = true; break;
+    if (event) {
+      this.checkEscalon = false;
+      this.checkSistema = false;
     }
   }
 
   toggleEscalon(event) {
-    switch (event) {
-      case true: this.checkRampa = false; break;
-      case false: this.checkRampa = true; break;
+    if (event) {
+      this.checkRampa = false;
+      this.checkSistema = false;
+    }
+  }
+
+  toggleSistema(event) {
+    if (event) {
+      this.checkRampa = false;
+      this.checkEscalon = false;
     }
   }
 
@@ -235,8 +244,9 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
         this.pesosSinapticos = this.getterEntradas.getPesosSinapticosRandom(this.parametrosEntrada.numeroEntradas,
           this.parametrosEntrada.numeroSalidas);
         this.mostrarContenidoPesos();
-        this.entrenamientoAleatorioListo();
         this.deshabilitarPesoAnterior();
+        this.parametrosEntrenamientoService.postPesosSinapticos(this.pesosSinapticos);
+        this.entrenamientoAleatorioListo();
         break;
       case false:
         if (!this.errorCheckAleatorio) this.reiniciarMatrizDePesos();
@@ -278,8 +288,9 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
         this.checkFilePesos = false;
         this.mostrarContenidoPesos();
         this.deshabilitarCargueArchivoPesos();
-        this.entrenamientoAnteriorListo();
         this.deshabilitarPesoAleatorio();
+        this.parametrosEntrenamientoService.postPesosSinapticos(this.pesosSinapticos);
+        this.entrenamientoAnteriorListo();
         break;
       case false:
         if (!this.errorCheckAnterior) this.reiniciarMatrizDePesos();
@@ -343,6 +354,7 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     this.parametrosEntrenamientoService.deleteParametrosEntrada();
     this.checkRampa = false;
     this.checkEscalon = false;
+    this.checkSistema = false;
     this.numeroIteraciones.setValue(1);
     this.rataAprendizaje.setValue(0.1);
     this.errorMaximoPermitido.setValue(0.1);
@@ -377,10 +389,10 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
 
   entrenar() {
     if (!this.validaciones.checkConfiguracionRed(this.parametrosEntrada, this.pesosSinapticos, this.checkEscalon, this.checkRampa,
-      this.numeroIteraciones, this.rataAprendizaje, this.errorMaximoPermitido)) {
+      this.numeroIteraciones, this.rataAprendizaje, this.errorMaximoPermitido, this.checkSistema)) {
       this.toastr.warning(!this.validaciones.checkParametrosEntrada(this.parametrosEntrada) ?
         'Verifique el cargue y la configuración de los parámetros de entrada' :
-        !this.validaciones.checkFuncionActivacion(this.checkEscalon, this.checkRampa) ?
+        !this.validaciones.checkFuncionActivacion(this.checkEscalon, this.checkRampa, this.checkSistema) ?
           'Verifique la configuración de la función de activación' :
           !this.validaciones.checkParametrosEntrenamiento(this.numeroIteraciones, this.rataAprendizaje, this.errorMaximoPermitido) ?
             'Verifique la configuración de los parámetros de entrenamiento' :
@@ -389,28 +401,29 @@ export class EntrenamientoComponent implements OnInit, AfterViewInit {
     }
     let indiceIteraciones = 0;
     this.tablaErrores = [];
+    this.pesosSinapticos = this.parametrosEntrenamientoService.getPesosSinapticos();
     while (indiceIteraciones < this.numeroIteraciones.value) {
       let erroresPatrones: number[] = [];
       this.parametrosEntrada.patrones.forEach(patron => {
-        let entrada = patron.valores[0];
         let erroresLineales = this.entrenamientoService.calcularErroresLineales(this.parametrosEntrada, this.pesosSinapticos,
           this.checkRampa, this.checkEscalon, patron);
         let errorPatron = this.entrenamientoService.errorPatron(erroresLineales, this.parametrosEntrada.numeroSalidas);
         erroresPatrones.push(errorPatron);
-        this.pesosSinapticos = this.entrenamientoService.obtenerPesosNuevos(this.parametrosEntrada,this.pesosSinapticos,
-          this.rataAprendizaje.value,erroresLineales,entrada);
+        this.pesosSinapticos = this.entrenamientoService.obtenerPesosNuevos(this.parametrosEntrada, this.pesosSinapticos,
+          this.rataAprendizaje.value, erroresLineales, patron.valores);
         this.mostrarContenidoPesosOptimos();
       });
       let errorRMS = this.entrenamientoService.errorRMS(erroresPatrones);
-      this.tablaErrores.push(new TablaErroresRMS(indiceIteraciones+1,errorRMS));
+      this.tablaErrores.push(new TablaErroresRMS(indiceIteraciones + 1, errorRMS));
       this.mostrarContenidoErrores();
-      indiceIteraciones = this.tablaErrores[indiceIteraciones].error <= 0 ? this.numeroIteraciones.value : indiceIteraciones + 1;
+      indiceIteraciones = this.tablaErrores[indiceIteraciones].error <= this.errorMaximoPermitido.value ? this.numeroIteraciones.value : indiceIteraciones + 1;
     }
     this.redEntrenada = true;
   }
 
-  guardarPesosOptimos() {
-    this.parametrosEntrenamientoService.postPesosOptimos(this.redEntrenada, this.pesosSinapticos);
+  guardarPesosYConfRed() {
+    let configuracionRed = this.checkRampa ? 'rampa' : this.checkEscalon ? 'escalon' : 'sistema';
+    this.parametrosEntrenamientoService.postPesosOptimosYConfRed(this.redEntrenada, this.pesosSinapticos, configuracionRed);
   }
 
   exportarPesosOptimos() {
