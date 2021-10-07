@@ -1,6 +1,6 @@
 import * as ApexCharts from "apexcharts";
 
-export class GraficaErrores {
+export class Grafica {
     chart: ApexCharts;
 
     constructor(grafica: HTMLElement, title: string, nombreSeries: any[], datos: any[], categories: any[]) {
@@ -50,6 +50,24 @@ export class GraficaErrores {
     }
 
     actualizarDatos(nombreSeries: any[], datos: any[]) {
-        this.chart.updateSeries(this.getSeries(nombreSeries,datos));
+        this.chart.updateSeries(this.getSeries(nombreSeries, datos));
+    }
+
+    actualizarDatosYCategorias(nombreSeries: any[], datos: any[], categorias: number) {
+        let options = {
+            series: this.getSeries(nombreSeries, datos),
+            xaxis: {
+                categories: this.getCategorias(categorias),
+            }
+        };
+        this.chart.updateOptions(options);
+    }
+
+    getCategorias(categorias: number): any[] {
+        let listaCategorias = [];
+        for (let i = 0; i < categorias; i++) {
+            listaCategorias.push(i + 1);
+        }
+        return listaCategorias;
     }
 }

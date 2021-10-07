@@ -25,8 +25,9 @@ export class EntrenamientoService {
   }
 
   calcularErroresLineales(parametrosEntrada: ParametrosEntrada, pesosSinapticos: MatrizPesosSinapticos, checkRampa: boolean,
-    checkEscalon: boolean, patron: Patron): number[] {
+    checkEscalon: boolean, patron: Patron): any {
     let erroresLineales: number[] = [];
+    let salidasRed: number[] = [];
     let entrada = patron.valores[0];
     for (let i = 0; i < parametrosEntrada.numeroSalidas; i++) {
       let salidaDeseada = patron.valores[parametrosEntrada.numeroEntradas + i];
@@ -37,9 +38,10 @@ export class EntrenamientoService {
         indicePatrones += 1;
       })
       let salidaRed = this.funcionActivacion(patron.valores, salidaSoma, entrada, checkRampa, checkEscalon, parametrosEntrada.numeroEntradas);
+      salidasRed.push(salidaRed);
       erroresLineales.push(salidaDeseada - salidaRed);
     }
-    return erroresLineales;
+    return { erroresLineales: erroresLineales, salidas: salidasRed };
   }
 
   funcionActivacion(entradas: number[], salidaSoma: number, entrada: number, checkRampa: boolean,
@@ -68,6 +70,36 @@ export class EntrenamientoService {
 
   errorRMS(erroresPatrones: number[]) {
     return (erroresPatrones.reduce((sum, current) => sum + current, 0)) / erroresPatrones.length;
+  }
+
+  getSalidasDeseadas(patrones: Patron[], numeroEntradas: number, numeroSalidas: number): any[] {
+    let listaSalidas: any[] = [];
+    for (let i = 0; i < numeroSalidas; i++) {
+      let salidas: number[] = [];
+      patrones.forEach(patron => {
+        salidas.push(patron.valores[numeroEntradas+i]);
+      });
+      listaSalidas.push(salidas);
+    }
+    return listaSalidas;
+  }
+
+  getInitSalidasRed(numeroSalidas: number): any[] {
+    let listaSalidas: any[] = [];
+    for (let i = 0; i < numeroSalidas; i++) {
+      let salidas: number[] = [];
+      listaSalidas.push(salidas);
+    }
+    return listaSalidas;
+  }
+
+  getSalidasRed(numeroSalidas: number): any[] {
+    let listaSalidas: any[] = [];
+    for (let i = 0; i < numeroSalidas; i++) {
+      let salidas: number[] = [];
+      listaSalidas.push(salidas);
+    }
+    return listaSalidas;
   }
 
 }

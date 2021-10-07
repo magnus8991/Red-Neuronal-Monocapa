@@ -25,8 +25,7 @@ export class EntrenamientoComponent implements OnInit {
   //Operaciones de eventos (comunicación entre componentes)
 
   reiniciarParametrosYConfiguracion() {
-    this.reiniciarStepEntradas();
-    this.reiniciarStepPesos();
+    this.reiniciarEntrenamiento();
   }
 
   reiniciarEntrenamiento() {
@@ -46,8 +45,7 @@ export class EntrenamientoComponent implements OnInit {
     }
     if (!this.isValidConfigYParametros(ConfigYParamsTraining, this.childStepEntradas.parametrosEntrada, 
       this.childStepPesos.pesosSinapticos)) return;
-    this.childStepEntrenamiento.entrenar(ConfigYParamsTraining, this.childStepEntradas.parametrosEntrada,
-      this.childStepPesos.pesosSinapticos);
+    this.childStepEntrenamiento.entrenar(ConfigYParamsTraining, this.childStepEntradas.parametrosEntrada);
   }
 
   guardarPesosYConfRed() {
@@ -60,6 +58,7 @@ export class EntrenamientoComponent implements OnInit {
 
   actualizarParametrosEntrada() {
     this.childStepPesos.parametrosEntrada = this.childStepEntradas.parametrosEntrada;
+    this.childStepEntrenamiento.actualizarGraficaSalidasDeseadas();
   }
 
   reiniciarStepPesos() {
