@@ -187,6 +187,9 @@ export class SimulacionComponent implements OnInit, AfterViewInit {
   reiniciarSimulacion() {
     this.checkFilePesos = false;
     this.checkPesosAnteriores = false;
+    this.checkRampa = false;
+    this.checkEscalon = false;
+    this.checkSistema = false;
     this.deshabilitarCargueArchivoPesos();
     this.deshabilitarPesoAnterior();
     this.reiniciarMatrizDePesos();
