@@ -11,10 +11,9 @@ export class ValidacionesService {
   constructor() { }
 
   checkConfiguracionRed(parametrosEntrada: ParametrosEntrada, pesosSinapticos: MatrizPesosSinapticos, checkEscalon: boolean,
-    checkRampa: boolean, numeroIteraciones: AbstractControl, rataAprendizaje: AbstractControl, errorMaximoPermitido: AbstractControl,
-    checkSistema: boolean) {
+    checkRampa: boolean, numeroIteraciones: any, rataAprendizaje: any, errorMaximoPermitido: any, checkSistema: boolean) {
     return this.checkParametrosEntrada(parametrosEntrada) && this.checkFuncionActivacion(checkEscalon, checkRampa, checkSistema) &&
-    this.checkParametrosEntrenamiento(numeroIteraciones, rataAprendizaje, errorMaximoPermitido) && this.checkMatrizPesos(pesosSinapticos) ? true : false;
+      this.checkParametrosEntrenamiento(numeroIteraciones, rataAprendizaje, errorMaximoPermitido) && this.checkMatrizPesos(pesosSinapticos) ? true : false;
   }
 
   checkParametrosEntrada(parametrosEntrada: ParametrosEntrada) {
@@ -29,23 +28,22 @@ export class ValidacionesService {
     return checkEscalon || checkRampa || checkSistema ? true : false;
   }
 
-  checkParametrosEntrenamiento(numeroIteraciones: AbstractControl, rataAprendizaje: AbstractControl,
-    errorMaximoPermitido: AbstractControl) {
+  checkParametrosEntrenamiento(numeroIteraciones: any, rataAprendizaje: any, errorMaximoPermitido: any) {
     return this.checkNumeroIteraciones(numeroIteraciones) && this.checkRataAprendizaje(rataAprendizaje) &&
-    this.checkErrorMaximoPermitido(errorMaximoPermitido) ? true : false;
+      this.checkErrorMaximoPermitido(errorMaximoPermitido) ? true : false;
   }
 
-  checkNumeroIteraciones(numeroIteraciones: AbstractControl) {
-    return numeroIteraciones.value <= 0 || numeroIteraciones.value == null || numeroIteraciones.value == undefined ? false : true;
+  checkNumeroIteraciones(numeroIteraciones: any) {
+    return numeroIteraciones <= 0 || numeroIteraciones == null || numeroIteraciones == undefined ? false : true;
   }
 
-  checkRataAprendizaje(rataAprendizaje: AbstractControl) {
-    return parseFloat(rataAprendizaje.value) <= 0 || parseFloat(rataAprendizaje.value) > 1 ||
-      rataAprendizaje.value == null || rataAprendizaje.value == undefined ? false : true;
+  checkRataAprendizaje(rataAprendizaje: any) {
+    return parseFloat(rataAprendizaje) <= 0 || parseFloat(rataAprendizaje) > 1 ||
+      rataAprendizaje == null || rataAprendizaje == undefined ? false : true;
   }
 
-  checkErrorMaximoPermitido(errorMaximoPermitido: AbstractControl) {
-    return parseFloat(errorMaximoPermitido.value) < 0 || errorMaximoPermitido.value == null || errorMaximoPermitido.value == undefined ? false : true;
+  checkErrorMaximoPermitido(errorMaximoPermitido: any) {
+    return parseFloat(errorMaximoPermitido) < 0 || errorMaximoPermitido == null || errorMaximoPermitido == undefined ? false : true;
   }
 
 }

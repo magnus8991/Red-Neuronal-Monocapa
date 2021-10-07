@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
@@ -35,6 +35,7 @@ export class StepPesosComponent implements OnInit, AfterViewInit {
   errorCheckAnterior: boolean = false;
   errorCheckFile: boolean = false;
   parametrosEntrada: ParametrosEntrada;
+  @Output() reloadTraining = new EventEmitter<unknown>();
 
   constructor(private getterEntradas: GetterEntradasService,
     private parametrosEntrenamientoService: ParametrosEntrenamientoService,
@@ -105,6 +106,7 @@ export class StepPesosComponent implements OnInit, AfterViewInit {
           this.messageToggle(event,'file','warning','Debe cargar el archivo de los parámetros de entrada');
           return;
         }
+        this.cargueArchivoListo();
         break;
       case false:
         if (!this.errorCheckFile) this.reiniciarMatrizDePesos();
@@ -265,5 +267,11 @@ export class StepPesosComponent implements OnInit, AfterViewInit {
   reiniciarMatrizDePesos() {
     this.pesosSinapticos = new MatrizPesosSinapticos();
     this.mostrarContenidoPesos();
+  }
+
+  //Eventos de reinicio de valores
+
+  reiniciarEntrenamiento() {
+    this.reloadTraining.emit();
   }
 }

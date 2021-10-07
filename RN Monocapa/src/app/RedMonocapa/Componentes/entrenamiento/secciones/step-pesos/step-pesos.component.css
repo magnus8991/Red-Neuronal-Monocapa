@@ -2,29 +2,18 @@ mat-icon {
     vertical-align: -25%;
 }
 
-/**********Color MatButtons**********/
+table {
+    width: 100%;
+  }
 
-.mat-success {
-    background-color: rgb(57, 123, 194) !important;
-    color: #FFFFFF;
-}
-
-.mat-save {
-    background-color: rgb(57, 194, 57) !important;
-    color: #FFFFFF;
-}
-
-.mat-export {
-    background-color: rgb(128, 136, 128) !important;
-    color: #FFFFFF;
-}
+/********** Color MatButtons **********/
 
 .mat-rollback {
     background-color: rgb(232, 147, 21) !important;
     color: #FFFFFF;
 }
 
-/**********File Inputs**********/
+/********** File Inputs **********/
 
 .archivo {
     text-align: center;
@@ -66,7 +55,7 @@ mat-icon {
 	font-family: 'Lato';
 }
 
-/* style 1 */
+/* style file-input */
 
 .inputfile-1 + label {
     color: #fff;
@@ -81,6 +70,8 @@ mat-icon {
     background-color: #a59b90;
 }
 
+/********** Slide Toggles **********/
+
 /deep/ .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar {
     background-color: #325ef0;
 }
@@ -88,7 +79,3 @@ mat-icon {
 /deep/ .mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb {
     background-color: #0433d0;
 }
-
-table {
-    width: 100%;
-  }

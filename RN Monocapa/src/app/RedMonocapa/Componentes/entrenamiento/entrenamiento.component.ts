@@ -2,6 +2,10 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { StepEntradasComponent } from './secciones/step-entradas/step-entradas.component';
 import { StepPesosComponent } from './secciones/step-pesos/step-pesos.component';
 import { StepEntrenamientoComponent } from './secciones/step-entrenamiento/step-entrenamiento.component';
+import { ValidacionesService } from '../../Servicios/validaciones.service';
+import { ParametrosEntrada } from '../../Modelos/parametrosEntrada';
+import { MatrizPesosSinapticos } from '../../Modelos/matrizPesosSinapticos';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-entrenamiento',
@@ -13,11 +17,12 @@ export class EntrenamientoComponent implements OnInit {
   @ViewChild(StepPesosComponent) childStepPesos;
   @ViewChild(StepEntrenamientoComponent) childStepEntrenamiento;
 
-  constructor() { }
+  constructor(private validaciones: ValidacionesService,
+    private toastr: ToastrService) { }
 
   ngOnInit() { }
 
-  //Operaciones de reinicio de valores
+  //Operaciones de eventos (comunicación entre componentes)
 
   reiniciarParametrosYConfiguracion() {
     this.reiniciarStepEntradas();
@@ -30,27 +35,28 @@ export class EntrenamientoComponent implements OnInit {
     this.reiniciarStepEntrenamiento();
   }
 
-  entrenarEvent() {
+  entrenar() {
     let ConfigYParamsTraining = {
       checkRampa: this.childStepEntradas.checkRampa,
       checkEscalon: this.childStepEntradas.checkEscalon,
       checkSistema: this.childStepEntradas.checkSistema,
-      numeroIteraciones: this.childStepEntradas.numeroIteraciones,
-      rataAprendizaje: this.childStepEntradas.rataAprendizaje,
-      errorMaximoPermitido: this.childStepEntradas.errorMaximoPermitido,
+      numeroIteraciones: this.childStepEntradas.numeroIteraciones.value,
+      rataAprendizaje: this.childStepEntradas.rataAprendizaje.value,
+      errorMaximoPermitido: this.childStepEntradas.errorMaximoPermitido.value,
     }
-    this.childStepEntrenamiento.entrenar(ConfigYParamsTraining, this.childStepEntradas.parametrosEntrada);
+    if (!this.isValidConfigYParametros(ConfigYParamsTraining, this.childStepEntradas.parametrosEntrada, 
+      this.childStepPesos.pesosSinapticos)) return;
+    this.childStepEntrenamiento.entrenar(ConfigYParamsTraining, this.childStepEntradas.parametrosEntrada,
+      this.childStepPesos.pesosSinapticos);
   }
 
-  guardarPesosYConfRedEvent() {
+  guardarPesosYConfRed() {
     let funcionesActivacion = {
       checkRampa: this.childStepEntradas.checkRampa,
       checkEscalon: this.childStepEntradas.checkEscalon
     };
     this.childStepEntrenamiento.guardarPesosYConfRed(funcionesActivacion);
   }
-
-  //Operaciones de eventos (comunicación entre componentes)
 
   actualizarParametrosEntrada() {
     this.childStepPesos.parametrosEntrada = this.childStepEntradas.parametrosEntrada;
@@ -68,5 +74,23 @@ export class EntrenamientoComponent implements OnInit {
 
   reiniciarStepEntrenamiento() {
     this.childStepEntrenamiento.reiniciarStepEntrenamiento();
+  }
+
+  //Pre-validacion del entrenamiento
+
+  isValidConfigYParametros(ConfigYParamsTraining, parametrosEntrada: ParametrosEntrada, pesosSinapticos: MatrizPesosSinapticos): boolean {
+    if (!this.validaciones.checkConfiguracionRed(parametrosEntrada, pesosSinapticos,
+      ConfigYParamsTraining.checkEscalon, ConfigYParamsTraining.checkRampa, ConfigYParamsTraining.numeroIteraciones,
+      ConfigYParamsTraining.rataAprendizaje, ConfigYParamsTraining.errorMaximoPermitido, ConfigYParamsTraining.checkSistema)) {
+      this.toastr.warning(!this.validaciones.checkParametrosEntrada(parametrosEntrada) ?
+        'Verifique el cargue y la configuración de los parámetros de entrada' :
+        !this.validaciones.checkFuncionActivacion(ConfigYParamsTraining.checkEscalon, ConfigYParamsTraining.checkRampa,
+          ConfigYParamsTraining.checkSistema) ? 'Verifique la configuración de la función de activación' :
+          !this.validaciones.checkParametrosEntrenamiento(ConfigYParamsTraining.numeroIteraciones,
+            ConfigYParamsTraining.rataAprendizaje, ConfigYParamsTraining.errorMaximoPermitido) ?
+            'Verifique la configuración de los parámetros de entrenamiento' : 'Verifique la configuración de los pesos sinápticos', '¡Advertencia!');
+      return false;
+    }
+    return true;
   }
 }

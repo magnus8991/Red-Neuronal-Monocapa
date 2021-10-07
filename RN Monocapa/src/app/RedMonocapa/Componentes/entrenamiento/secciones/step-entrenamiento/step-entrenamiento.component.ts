@@ -84,6 +84,7 @@ export class StepEntrenamientoComponent implements OnInit, AfterViewInit {
   reiniciarStepEntrenamiento() {
     this.reiniciarMatrizDePesos();
     this.reiniciarMatrizDeErrores();
+    this.reiniciarGraficas();
     this.redEntrenada = false;
   }
 
@@ -98,28 +99,22 @@ export class StepEntrenamientoComponent implements OnInit, AfterViewInit {
     this.mostrarContenidoErrores();
   }
 
+  reiniciarGraficas() {
+    this.erroresRMS = [];
+    this.erroresMaximosPermitidos = [];
+    this.graficaErrores.actualizarDatos(['Error RMS', 'Error Máximo Permitido'], [this.erroresRMS, this.erroresMaximosPermitidos]);
+  }
+
   //Operaciones de entrenamiento de la red neuronal
 
-  entrenar(ConfigYParamsTraining, parametrosEntrada: ParametrosEntrada) {
-    if (!this.validaciones.checkConfiguracionRed(parametrosEntrada, this.pesosOptimos,
-      ConfigYParamsTraining.checkEscalon, ConfigYParamsTraining.checkRampa, ConfigYParamsTraining.numeroIteraciones,
-      ConfigYParamsTraining.rataAprendizaje, ConfigYParamsTraining.errorMaximoPermitido, ConfigYParamsTraining.checkSistema)) {
-      this.toastr.warning(!this.validaciones.checkParametrosEntrada(parametrosEntrada) ?
-        'Verifique el cargue y la configuración de los parámetros de entrada' :
-        !this.validaciones.checkFuncionActivacion(ConfigYParamsTraining.checkEscalon, ConfigYParamsTraining.checkRampa,
-          ConfigYParamsTraining.checkSistema) ? 'Verifique la configuración de la función de activación' :
-          !this.validaciones.checkParametrosEntrenamiento(ConfigYParamsTraining.numeroIteraciones,
-            ConfigYParamsTraining.rataAprendizaje, ConfigYParamsTraining.errorMaximoPermitido) ?
-            'Verifique la configuración de los parámetros de entrenamiento' : 'Verifique la configuración de los pesos sinápticos', '¡Advertencia!');
-      return;
-    }
+  entrenar(ConfigYParamsTraining, parametrosEntrada: ParametrosEntrada, pesosSinapticos: MatrizPesosSinapticos) {
     let indiceIteraciones = 0;
     this.tablaErroresRMS = [];
     this.numerosIteraciones = [];
     this.erroresMaximosPermitidos = [];
     this.erroresRMS = [];
     this.pesosOptimos = this.parametrosEntrenamientoService.getPesosSinapticos();
-    while (indiceIteraciones < ConfigYParamsTraining.numeroIteraciones.value) {
+    while (indiceIteraciones < ConfigYParamsTraining.numeroIteraciones) {
       let erroresPatrones: number[] = [];
       parametrosEntrada.patrones.forEach(patron => {
         let erroresLineales = this.entrenamientoService.calcularErroresLineales(parametrosEntrada, this.pesosOptimos,
@@ -127,15 +122,15 @@ export class StepEntrenamientoComponent implements OnInit, AfterViewInit {
         let errorPatron = this.entrenamientoService.errorPatron(erroresLineales, parametrosEntrada.numeroSalidas);
         erroresPatrones.push(errorPatron);
         this.pesosOptimos = this.entrenamientoService.obtenerPesosNuevos(parametrosEntrada, this.pesosOptimos,
-          ConfigYParamsTraining.rataAprendizaje.value, erroresLineales, patron.valores);
+          ConfigYParamsTraining.rataAprendizaje, erroresLineales, patron.valores);
         this.mostrarContenidoPesosOptimos();
       });
       let errorRMS = this.entrenamientoService.errorRMS(erroresPatrones);
       this.tablaErroresRMS.push(new TablaErroresRMS(indiceIteraciones + 1, errorRMS));
       this.actualizarGraficaErrores(indiceIteraciones, errorRMS, ConfigYParamsTraining.errorMaximoPermitido);
       this.mostrarContenidoErrores();
-      indiceIteraciones = this.tablaErroresRMS[indiceIteraciones].error <= ConfigYParamsTraining.errorMaximoPermitido.value ?
-        ConfigYParamsTraining.numeroIteraciones.value : indiceIteraciones + 1;
+      indiceIteraciones = this.tablaErroresRMS[indiceIteraciones].error <= ConfigYParamsTraining.errorMaximoPermitido ?
+        ConfigYParamsTraining.numeroIteraciones : indiceIteraciones + 1;
     }
     this.redEntrenada = true;
     this.toastr.info('La red neuronal ha sido entrenada correctamente', '¡Enhorabuena!');
