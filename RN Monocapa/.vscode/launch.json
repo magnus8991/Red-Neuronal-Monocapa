@@ -1,0 +1,11 @@
+{
+    "configurations": [
+    {
+        "command": "npm start",
+        "name": "Red Monocapa - Web",
+        "request": "launch",
+        "type": "node-terminal",
+        "cwd": "${workspaceFolder}"
+    }
+    ]
+}

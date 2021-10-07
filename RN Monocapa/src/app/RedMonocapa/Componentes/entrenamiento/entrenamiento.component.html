@@ -1,0 +1,60 @@
+<div class="cuerpo">
+    <div class="contenido">
+        <mat-stepper labelPosition="right" #stepper>
+            <mat-step>
+                <ng-template matStepLabel>
+                    <span [ngStyle]="{'color':'white'}">Parámetros y Configuración</span>
+                </ng-template>
+                <step-entradas (reloadStepPesos)="reiniciarStepPesos()"
+                    (updateParametrosEntrada)="actualizarParametrosEntrada()">
+                </step-entradas>
+                <br>
+                <div class="row">
+                    <div class="col-md-6" style="text-align: center;">
+                        <mat-card>
+                            <button mat-raised-button (click)="reiniciarParametrosYConfiguracion()" color="warn">
+                                <mat-icon matSuffix>delete</mat-icon> Borrar Parámetros y Configuración
+                            </button>
+                        </mat-card>
+                    </div>
+                    <div class="col-md-6" style="text-align: center;">
+                        <mat-card>
+                            <button mat-raised-button (click)="reiniciarEntrenamiento()" color="rollback">
+                                <mat-icon matSuffix>restart_alt</mat-icon> Reiniciar
+                                Entrenamiento
+                            </button>
+                        </mat-card>
+                    </div>
+                </div>
+            </mat-step>
+            <mat-step>
+                <ng-template matStepLabel><span [ngStyle]="{'color':'white'}">Pesos Sinápticos</span></ng-template>
+                <step-pesos></step-pesos>
+                <br>
+                <div class="row">
+                    <div class="col-md-6" style="text-align: center;">
+                        <mat-card>
+                            <button mat-raised-button (click)="reiniciarStepPesos()" color="warn">
+                                <mat-icon matSuffix>delete</mat-icon>
+                                Borrar Pesos Sinápticos
+                            </button>
+                        </mat-card>
+                    </div>
+                    <div class="col-md-6" style="text-align: center;">
+                        <mat-card>
+                            <button mat-raised-button (click)="reiniciarEntrenamiento()" color="rollback">
+                                <mat-icon matSuffix>restart_alt</mat-icon> Reiniciar
+                                Entrenamiento
+                            </button>
+                        </mat-card>
+                    </div>
+                </div>
+            </mat-step>
+            <mat-step>
+                <ng-template matStepLabel><span [ngStyle]="{'color':'white'}">Entrenar</span></ng-template>
+                <step-entrenamiento (reloadEntrenamiento)="reiniciarEntrenamiento()" (trainingNetwork)="entrenarEvent()" 
+                (saveWeightAndNetworkConfiguration)="guardarPesosYConfRedEvent()"></step-entrenamiento>
+            </mat-step>
+        </mat-stepper>
+    </div>
+</div>
